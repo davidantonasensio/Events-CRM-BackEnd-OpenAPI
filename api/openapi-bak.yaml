@@ -1,0 +1,804 @@
+openapi: 3.0.0
+info:
+  contact:
+    email: david.anton.asensio@gmail.com
+  description: |
+    This is the EventCRM API to cover Events information.  You can find
+    out more about EventCRM at
+    [https://www.idanas.de](https://www.idanas.de) or on
+    [crm.idanas.de](https://crm.idanas.de)
+  license:
+    name: idanas
+    url: http://www.idanas.de
+  termsOfService: https://www.idanas.de
+  title: idanas Event CRM
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/davidanton/EventCRM/1.0.0
+- url: http://localhost:3000
+tags:
+- description: Everything about your Events
+  externalDocs:
+    description: Find out more
+    url: https://crm.idanas.de
+  name: event
+- description: all teh communications from each event
+  name: messages
+- description: Operations about user
+  externalDocs:
+    description: Find out more about eventCRM Api
+    url: https://github.com/davidantonasensio/Events-CRM-BackEnd
+  name: user
+paths:
+  /event:
+    get:
+      description: Multiple status values can be provided with comma separated strings
+      operationId: getAllEvents
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
+          description: successful operation
+        "400":
+          description: Invalid status value
+      security:
+      - event_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: return all the events
+      tags:
+      - event
+      x-openapi-router-controller: EventController
+      x-openapi-router-service: EventService
+    post:
+      operationId: addEvent
+      requestBody:
+        $ref: '#/components/requestBodies/Event'
+      responses:
+        "405":
+          description: Invalid input
+      security:
+      - event_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Add a new event to the DB
+      tags:
+      - event
+      x-openapi-router-controller: EventController
+      x-openapi-router-service: EventService
+  /event/{eventID}:
+    delete:
+      operationId: deleteEventByID
+      parameters:
+      - explode: false
+        in: header
+        name: api_key
+        required: false
+        schema:
+          type: string
+        style: simple
+      - description: Event id to delete
+        explode: false
+        in: path
+        name: eventID
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "400":
+          description: Invalid event value
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Deletes a event
+      tags:
+      - event
+      x-openapi-router-controller: EventController
+      x-openapi-router-service: EventService
+    get:
+      description: Returns a single event
+      operationId: getEventById
+      parameters:
+      - description: ID of event to return
+        explode: false
+        in: path
+        name: eventID
+        required: true
+        schema:
+          type: string
+          format: int64
+      responses:
+        "200":
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/requestBodies/Event'
+            application/json:
+              schema:
+                $ref: '#/components/requestBodies/Event'
+          description: successful operation
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Event not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      tags:
+      - event
+      x-openapi-router-controller: EventController
+      x-openapi-router-service: EventService
+    put:
+      operationId: updateEventByID
+      parameters:
+      - description: ID of event that needs to be updated
+        explode: false
+        in: path
+        name: eventID
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Updated User Object
+        required: true
+      responses:
+        "200":
+          description: succesfull updated event
+        "400":
+          description: Invalid event ID supplied
+        "404":
+          description: Event not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Updates an event in the DB
+      tags:
+      - event
+      x-openapi-router-controller: EventController
+      x-openapi-router-service: EventService
+  /messages/{eventID}:
+    post:
+      operationId: addMessageByEventID
+      parameters:
+      - description: ID of event that needs to be updated
+        explode: false
+        in: path
+        name: eventID
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Message'
+        description: Write a new Message for event in DB
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: successful introduced message
+        "400":
+          description: Invalid event ID
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Place a message from a customer
+      tags:
+      - messages
+      x-openapi-router-controller: MessagesController
+      x-openapi-router-service: MessagesService
+  /messages/{messageID}:
+    delete:
+      description: For valid response try integer IDs with positive integer value.\
+        \ Negative or non-integer values will generate API errors
+      operationId: deleteMessagesByEventId
+      parameters:
+      - description: ID of the order that needs to be deleted
+        explode: false
+        in: path
+        name: messageID
+        required: true
+        schema:
+          minimum: 1
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Message deleted
+        "400":
+          description: Invalid messageID supplied
+        "404":
+          description: Message not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Delete messages by MessagesID
+      tags:
+      - messages
+      x-openapi-router-controller: MessagesController
+      x-openapi-router-service: MessagesService
+    get:
+      description: get all teh messages for the given ID. The Id is the event _id
+      operationId: getMessagesByEventId
+      parameters:
+      - description: ID of Message DB
+        explode: false
+        in: path
+        name: messageID
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: successful found messages for Event
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Messages not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Find messages by eventID
+      tags:
+      - messages
+      x-openapi-router-controller: MessagesController
+      x-openapi-router-service: MessagesService
+  /user:
+    post:
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Created user object
+        required: true
+      responses:
+        default:
+          description: successful operation
+      summary: Create user
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+  /user/createWithArray:
+    post:
+      operationId: createUsersWithArrayInput
+      requestBody:
+        $ref: '#/components/requestBodies/UserArray'
+      responses:
+        default:
+          description: successful operation
+      summary: Creates list of users with given input array
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+  /user/createWithList:
+    post:
+      operationId: createUsersWithListInput
+      requestBody:
+        $ref: '#/components/requestBodies/UserArray'
+      responses:
+        default:
+          description: successful operation
+      summary: Creates list of users with given input array
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+  /user/login:
+    get:
+      operationId: loginUser
+      parameters:
+      - description: The user name for login
+        explode: true
+        in: query
+        name: username
+        required: true
+        schema:
+          type: string
+        style: form
+      - description: The password for login in clear text
+        explode: true
+        in: query
+        name: password
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: string
+            application/xml:
+              schema:
+                type: string
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              explode: false
+              schema:
+                format: int32
+                type: integer
+              style: simple
+            X-Expires-After:
+              description: date in UTC when token expires
+              explode: false
+              schema:
+                format: date-time
+                type: string
+              style: simple
+        "400":
+          description: Invalid username/password supplied
+      summary: Logs user into the system
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+  /user/logout:
+    get:
+      operationId: logoutUser
+      responses:
+        default:
+          description: successful operation
+      summary: Logs out current logged in user session
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+  /user/{username}:
+    delete:
+      description: This can only be done by the logged in user.
+      operationId: deleteUser
+      parameters:
+      - description: The name that needs to be deleted
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+      summary: Delete user
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+    get:
+      operationId: getUserByName
+      parameters:
+      - description: The name that needs to be fetched. Use user1 for testing.
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: successful operation
+        "400":
+          description: Invalid username supplied
+        "404":
+          description: User not found
+      summary: Get user by user name
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+    put:
+      description: This can only be done by the logged in user.
+      operationId: updateUser
+      parameters:
+      - description: name that need to be updated
+        explode: false
+        in: path
+        name: username
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        description: Updated user object
+        required: true
+      responses:
+        "400":
+          description: Invalid user supplied
+        "404":
+          description: User not found
+      summary: Updated user
+      tags:
+      - user
+      x-openapi-router-controller: UserController
+      x-openapi-router-service: UserService
+components:
+  requestBodies:
+    Event:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Event'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Event'
+      description: Event object that needs to be updated or added to the DB
+      required: true
+    UserArray:
+      content:
+        application/json:
+          schema:
+            items:
+              $ref: '#/components/schemas/User'
+            type: array
+      description: List of user object
+      required: true
+  schemas:
+    Event:
+      example:
+        eventInfo:
+          dateEvent: 2000-01-23T04:56:07.000+00:00
+          eventLocationName: eventLocationName
+          eventLocationAddress:
+            country: country
+            streetNumber: streetNumber
+            street: street
+            postalCode: postalCode
+            location: location
+          contactPerson:
+            clientTel: clientTel
+            clientName: clientName
+            clientEmail: clientEmail
+            clientSurname: clientSurname
+            clientAddress:
+              country: country
+              streetNumber: streetNumber
+              street: street
+              postalCode: postalCode
+              location: location
+        contractStatus: 0
+        firstContactDate: 2000-01-23T04:56:07.000+00:00
+        comments: comments
+        contractInfo:
+          depositPayed: true
+          contractDate: 2000-01-23T04:56:07.000+00:00
+          totalPrice: 1
+          totalTime: totalTime
+          depositToPay: 5
+          services: services
+          permisionPublic: true
+          products: products
+        myEventId: myEventId
+        _id: id
+        source: source
+        client2Info:
+          clientTel: clientTel
+          clientName: clientName
+          clientEmail: clientEmail
+          clientSurname: clientSurname
+          clientAddress:
+            country: country
+            streetNumber: streetNumber
+            street: street
+            postalCode: postalCode
+            location: location
+        client1Info:
+          clientTel: clientTel
+          clientName: clientName
+          clientEmail: clientEmail
+          clientSurname: clientSurname
+          clientAddress:
+            country: country
+            streetNumber: streetNumber
+            street: street
+            postalCode: postalCode
+            location: location
+        budget: 6
+      properties:
+        id:
+          description: Automatic MongoDB ID
+          type: string
+        myEventId:
+          description: my own ID
+          type: string
+        contractStatus:
+          default: 0
+          description: potential = 0, activ = 1, inactiv = -1
+          enum:
+          - 1
+          - 0
+          - -1
+          format: int32
+          type: integer
+        firstContactDate:
+          format: date-time
+          type: string
+        source:
+          description: Where did the costumer foud us
+          type: string
+        budget:
+          type: integer
+        comments:
+          type: string
+        eventInfo:
+          $ref: '#/components/schemas/EventInfo'
+        client1Info:
+          $ref: '#/components/schemas/PersonInfo'
+        client2Info:
+          $ref: '#/components/schemas/PersonInfo'
+        contractInfo:
+          $ref: '#/components/schemas/ContractInfo'
+      type: object
+      xml:
+        name: Event
+    EventInfo:
+      example:
+        dateEvent: 2000-01-23T04:56:07.000+00:00
+        eventLocationName: eventLocationName
+        eventLocationAddress:
+          country: country
+          streetNumber: streetNumber
+          street: street
+          postalCode: postalCode
+          location: location
+        contactPerson:
+          clientTel: clientTel
+          clientName: clientName
+          clientEmail: clientEmail
+          clientSurname: clientSurname
+          clientAddress:
+            country: country
+            streetNumber: streetNumber
+            street: street
+            postalCode: postalCode
+            location: location
+      properties:
+        dateEvent:
+          format: date-time
+          type: string
+        eventLocationName:
+          type: string
+        eventLocationAddress:
+          $ref: '#/components/schemas/Adress'
+        contactPerson:
+          $ref: '#/components/schemas/PersonInfo'
+      type: object
+      xml:
+        name: Event
+    PersonInfo:
+      example:
+        clientTel: clientTel
+        clientName: clientName
+        clientEmail: clientEmail
+        clientSurname: clientSurname
+        clientAddress:
+          country: country
+          streetNumber: streetNumber
+          street: street
+          postalCode: postalCode
+          location: location
+      properties:
+        clientName:
+          type: string
+        clientSurname:
+          type: string
+        clientTel:
+          type: string
+        clientEmail:
+          type: string
+        clientAddress:
+          $ref: '#/components/schemas/Adress'
+      type: object
+      xml:
+        name: Event
+    Adress:
+      example:
+        country: country
+        streetNumber: streetNumber
+        street: street
+        postalCode: postalCode
+        location: location
+      properties:
+        street:
+          type: string
+        streetNumber:
+          type: string
+        postalCode:
+          type: string
+        location:
+          type: string
+        country:
+          type: string
+      type: object
+      xml:
+        name: Event
+    ContractInfo:
+      example:
+        depositPayed: true
+        contractDate: 2000-01-23T04:56:07.000+00:00
+        totalPrice: 1
+        totalTime: totalTime
+        depositToPay: 5
+        services: services
+        permisionPublic: true
+        products: products
+      properties:
+        contractDate:
+          format: date-time
+          type: string
+        services:
+          type: string
+        products:
+          type: string
+        totalTime:
+          type: string
+        totalPrice:
+          type: integer
+        depositToPay:
+          type: integer
+        depositPayed:
+          type: boolean
+        permisionPublic:
+          type: boolean
+      type: object
+      xml:
+        name: Event
+    Message:
+      example:
+        messageText: messageText
+        messageChanel: messageChanel
+        contactDate: 2000-01-23T04:56:07.000+00:00
+        myEventId: myEventId
+        customerid: customerid
+        contactPerson:
+          clientTel: clientTel
+          clientName: clientName
+          clientEmail: clientEmail
+          clientSurname: clientSurname
+          clientAddress:
+            country: country
+            streetNumber: streetNumber
+            street: street
+            postalCode: postalCode
+            location: location
+        id: id
+      properties:
+        id:
+          description: Automatic MongoDB ID
+          type: string
+        customerid:
+          description: Automatic MongoDB ID von Event
+          type: string
+        myEventId:
+          description: my own ID
+          type: string
+        contactPerson:
+          $ref: '#/components/schemas/PersonInfo'
+        contactDate:
+          format: date-time
+          type: string
+        messageChanel:
+          type: string
+        messageText:
+          type: string
+      type: object
+      xml:
+        name: Event
+    User:
+      example:
+        firstName: firstName
+        lastName: lastName
+        password: password
+        userStatus: 6
+        phone: phone
+        id: 0
+        email: email
+        username: username
+      properties:
+        id:
+          format: int64
+          type: integer
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        userStatus:
+          description: User Status
+          format: int32
+          type: integer
+      type: object
+      xml:
+        name: User
+    ApiResponse:
+      properties:
+        code:
+          format: int32
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+      type: object
+  securitySchemes:
+    eventstore_auth:
+      flows:
+        implicit:
+          authorizationUrl: https://crm.idanas.de/oauth/dialog
+          scopes:
+            write:eventAdmin: modify event in DB
+            read:eventAdmin: read your DB
+      type: oauth2
+    api_key:
+      in: header
+      name: api_key
+      type: apiKey
