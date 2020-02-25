@@ -1,36 +1,86 @@
-# OpenAPI Generated JavaScript/Express Server
+# Event CRM RestFull API
 
-## Overview
-This server was generated using the [OpenAPI Generator](https://openapi-generator.tech) project.  The code generator, and it's generated code allows you to develop your system with an API-First attitude, where the API contract is the anchor and definer of your project, and your code and business-logic aims to complete and comply to the terms in the API contract.
+- Events CRM Back-End RESTful App to control customers in the Event business, oriented specially on the wedding industry
+- Back-End developed with Node.js
+- [EventCRM OpenAPI Specification](https://app.swaggerhub.com/apis/davidanton/EventCRM/1.0.0)
 
-### prerequisites
+## Comming soon
+- Authentification
+- Docker container with this node App + MongoDB container
+
+## Prerequisites
 - NodeJS >= 10.4
 - NPM >= 6.10.0
 
-The code was written on a mac, so assuming all should work smoothly on Linux-based computers. However, there is no reason not to run this library on Windows-based machines. If you find an OS-related problem, please open an issue and it will be resolved.
+## Quick Start
 
-### Running the server  
-To run the server, run:  
-  
-```  
-npm start  
+```bash
+# Install dependencies
+npm install
+
+# Start Express Server: http://localhost:3000
+npm start
+
+# Build for production (Will build into server/public, ready for deployment)
+npm run build
+
+# Make file /utils/mongoDBConnect.js
+
+const mongodb = require('mongodb');
+
+	const user = 'userName';
+	const pass = 'Password'; 
+    const conection = 'mongodb://'+ user +':'+ pass +'@192.168.2.90:27017/eventsCRM';
+
+
+  //*** Conection to DB */
+
+    let MongoClient = mongodb.MongoClient;
+    let db;
+    let collection;
+    let collectioninfos;
+    exports.mongodb = mongodb;
+    
+ 
+
+    const client = MongoClient.connect(conection,{useNewUrlParser: true, useUnifiedTopology: true})
+    .then(
+        client=> 
+        {        
+            db = client.db('eventsCRM');
+            exports.collection = db.collection('events');
+            exports.collectionmessages = db.collection('messages');
+            exports.collectionlogin = db.collection('users');
+        }
+    )
+    .catch(error => console.error(error));
+
+
+    //module.exports = mongodb;
+    //*** End Conection to DB */
 ```
-### View and test the API
-You can see the API documentation, and check the available endpoints by going to http://localhost:3000/api-docs/.  Endpoints that require security need to have security handlers configured before they can return a successful response. At this point they will return [ a response code of 401](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401).
-##### At this stage the server does not support document body sent in xml format. Forms will be supported in the near future. 
 
-### Node version and guidelines 
-The code was written using Node version 10.6, and complies to the [Airbnb .eslint guiding rules](https://github.com/airbnb/javascript). 
+## Info
+I develop at this time this app to get experience with node.js, REST and OpenAPI, thinking may be to be able to use it for my own business in the future.
+I Plan to make the BackEnd with Java(Spring Boot) as well. The actual FrontEnd is made with Vue.js. Hier in GitHub the actual FronEnd(20200224) it is not compatible with this OpenAPI BackEnd
 
-### Project Files
+### Author
+David Anton
+[idanas](https://www.idanas.de)
+
+### Version
+
+0.0.1
+
 #### Root Directory:
 In the root directory we have (besides package.json, config.js, and log files):
 - **logger.js** - where we define the logger for the project. The project uses winston, but the purpose of this file is to enable users to change and modify their own logger behavior.
 - **index.js** - This is the project's 'main' file, and from here we launch the application. This is a very short and concise file, and the idea behind launching from this short file is to allow use-cases of launching the server with different parameters (changing config and/or logger) without affecting the rest of the code. 
-- **expressServer.js** - The core of the Express.js server. This is where the express server is initialized, together with the OpenAPI validator, OpenAPI UI, and other libraries needed to start our server. If we want to add external links, that's where they would go. Our project uses the [express-openapi-validator](https://www.npmjs.com/package/express-openapi-validator) library that acts as a first step in the routing process - requests that are directed to paths defined in the `openapi.yaml` file are caught by this process, and it's parameters and bodyContent are validated against the schema. A successful result of this validation will be a new 'openapi' object added to the request. If the path requested is not part of the openapi.yaml file, the validator ignores the request and passes it on, as is, down the flow of the Express server.
+- **expressServer.js** - The core of the Express.js server. This is where the express server is initialized, together with the OpenAPI validator, OpenAPI UI, and other libraries needed to start our server. If we want to add external links, that's where they would go. The EventsCRM project uses the [express-openapi-validator](https://www.npmjs.com/package/express-openapi-validator) library that acts as a first step in the routing process - requests that are directed to paths defined in the `openapi.yaml` file are caught by this process, and it's parameters and bodyContent are validated against the schema. A successful result of this validation will be a new 'openapi' object added to the request. If the path requested is not part of the openapi.yaml file, the validator ignores the request and passes it on, as is, down the flow of the Express server.
 
 #### api/
-- **openapi.yaml** - This is the OpenAPI contract to which this server will comply. The file was generated using the codegen, and should contain everything needed to run the API Gateway - no references to external models/schemas. 
+- **openapi.yaml** - This is the OpenAPI contract to which this server will comply. The file was generated using the codegen, and should contain everything needed to run the API Gateway - no references to external models/schemas.
+[EventCRM OpenAPI Specification](https://app.swaggerhub.com/apis/davidanton/EventCRM/1.0.0)
 
 #### utils/
 Currently a single file:
@@ -67,5 +117,14 @@ Future tests should be written to ensure that the response of every request sent
 #### models/
 Currently a concept awaiting feedback. The idea is to have the objects defined in the openapi.yaml act as models which are passed between the different modules. This will conform the programmers to interact using defined objects, rather than loosley-defined JSON objects. Given the nature of JavaScript progrmmers, who want to work with their own bootstrapped parameters, this concept might not work. Keeping this here for future discussion and feedback.
 
-
-
+## Warranties
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
