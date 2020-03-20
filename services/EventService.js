@@ -17,7 +17,7 @@ class EventService {
       async (resolve) => {
         try {
           await mongoDB.collection.insertOne(body);
-          resolve(Service.successResponse('Event inserted in DB'));
+          resolve(Service.successResponse({response: 'Event inserted in DB'}));          
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
@@ -39,8 +39,7 @@ class EventService {
     return new Promise(
       async (resolve) => {
         try {
-          let itemsDeleted = 0;
-          
+          let itemsDeleted = 0;          
           await mongoDB.collection.deleteOne({_id: mongoDB.mongodb.ObjectID(eventID)})
 		    .then(result => {
 			  itemsDeleted = (`${result.deletedCount}`);
@@ -129,7 +128,7 @@ class EventService {
               _id: mongoDB.mongodb.ObjectID(eventID)
             },
             {$set: body});
-          resolve(Service.successResponse('Event Modified in DB'));
+          resolve(Service.successResponse({response: 'Event Modified in DB'}));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',

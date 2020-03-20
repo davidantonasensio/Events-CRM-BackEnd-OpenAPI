@@ -15,7 +15,6 @@ class EventController {
   }
   
   async addEvent(request, response) {
-	  //console.log("request", request)
     await Controller.handleRequest(request, response, this.service.addEvent);
   }
 
