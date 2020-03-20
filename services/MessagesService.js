@@ -16,7 +16,7 @@ class MessagesService {
       async (resolve) => {
         try {
           const eventsBody = await mongoDB.collectionmessages.insertOne(body);
-          resolve(Service.successResponse('Message inserted'));
+          resolve(Service.successResponse({response: 'Message inserted in DB'}));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
@@ -48,7 +48,7 @@ class MessagesService {
             },
             {$set: body});
             
-          resolve(Service.successResponse('Message Modified'));
+          resolve(Service.successResponse({response: 'Message modified DB'}));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
@@ -133,6 +133,30 @@ class MessagesService {
         try {        	
           const eventByIdArray = await mongoDB.collectionmessages.find({eventId: eventOrMessageID}).toArray();        	
           resolve(Service.successResponse(eventByIdArray));
+        } catch (e) {
+          resolve(Service.rejectResponse(
+            e.message || 'Invalid input',
+            e.status || 405,
+          ));
+        }
+      },
+    );
+  }
+  
+  /**
+   * Find one messages by Message ID
+   * get all the messages for the given ID. The Id is the event _id
+   *
+   * messageID String ID of Message DB
+   * returns Message
+   **/
+  static getOneMessagesById({ eventOrMessageID }) {
+    return new Promise(
+      async (resolve) => {
+        try {
+	      let messageById = [];
+	      messageById = await mongoDB.collectionmessages.find({_id: mongoDB.mongodb.ObjectID(eventOrMessageID)}).toArray();
+	      resolve(Service.successResponse(messageById));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',

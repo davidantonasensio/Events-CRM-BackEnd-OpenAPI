@@ -24,6 +24,10 @@ class MessagesController {
   async getMessagesByEventId(request, response) {
     await Controller.handleRequest(request, response, this.service.getMessagesByEventId);
   }
+  
+  async getOneMessagesById(request, response) {
+	    await Controller.handleRequest(request, response, this.service.getOneMessagesById);
+	  }
 
 }
 

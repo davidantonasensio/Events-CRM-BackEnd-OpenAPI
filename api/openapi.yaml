@@ -184,7 +184,7 @@ paths:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
-  /messages/:
+  /messages:
     post:
       description: Add a nuw message to an event given by its ID.
       operationId: addMessageByEventID
@@ -218,7 +218,7 @@ paths:
       x-openapi-router-service: MessagesService
   /messages/{eventOrMessageID}:
     get:
-      description: get all teh messages for the given ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+      description: get all teh messages for the given Event ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
       operationId: getMessagesByEventId
       parameters:
       - description: ID of Message DB
@@ -334,6 +334,42 @@ paths:
           description: Invalid messageID supplied
         "404":
           description: Message not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Delete messages by MessagesID
+      tags:
+      - messages
+      x-openapi-router-controller: MessagesController
+      x-openapi-router-service: MessagesService      
+  /messages/getOneMessage/{eventOrMessageID}:
+    get:      
+      operationId: getOneMessagesById
+      description: Get just one message from a given Message ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+      parameters:
+      - description: ID of the Message
+        explode: false
+        in: path
+        name: eventOrMessageID
+        required: true
+        schema:
+          type: string
+          format: int64
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Message'
+          description: successful found message for ID
+        "400":
+          description: Invalid messageID supplied
+        "404":
+          description: Message not found  
       security:
       - eventstore_auth:
         - write:eventAdmin
@@ -770,26 +806,16 @@ components:
         messageText: MessageText
         messageChanel: Email
         contactDate: 2020-01-23T04:56:07.000+00:00
-        contactPerson:          
-          clientName: SheName-01
-          clientSurname: SheSurname-01
-          clientTel: 1234567890
-          clientEmail: SheName-01@email.com         
-          clientAddress:                        
-            street: Street-01
-            streetNumber: 56
-            postalCode: 77777
-            location: Location-01
-            country: Country-01
+        contactPerson: Angela Merkel         
       properties:
         eventid:
-          description: Automatic MongoDB ID von the Event collection(_id)
+          description: ID von the Event collection(_id)
           type: string
         myEventId:
           description: my own ID
           type: string
         contactPerson:
-          $ref: '#/components/schemas/PersonInfo'
+          type: string
         contactDate:
           format: date-time
           type: string
