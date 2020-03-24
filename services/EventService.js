@@ -39,21 +39,22 @@ class EventService {
     return new Promise(
       async (resolve) => {
         try {
-          let itemsDeleted = 0;          
+          let itemsDeleted = 0;            
           await mongoDB.collection.deleteOne({_id: mongoDB.mongodb.ObjectID(eventID)})
 		    .then(result => {
 			  itemsDeleted = (`${result.deletedCount}`);
-			}
+			}			
 		  )
 			.catch(err => console.error(`Delete failed with error: ${err}`));
+
 	      /*
 	       * If we are delete a event, we don't need the messages asociated with it anymore
 	       * MessagesService.deleteAllMessagesByEventId send the eventID to the funtion to 
 	       * delete all the messages
 	       */
-          MessagesService.deleteAllMessagesByEventId({'eventOrMessageID': eventID});
+          MessagesService.deleteAllMessagesByEventId({'eventOrMessageID': eventID});          
+          resolve(Service.successResponse({response: 'Deleted ' + itemsDeleted + ' items'}));
           
-          resolve(Service.successResponse('Deleted ' + itemsDeleted + ' items'));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',

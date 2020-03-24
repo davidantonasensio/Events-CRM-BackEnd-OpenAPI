@@ -70,7 +70,7 @@ class MessagesService {
     return new Promise(
       async (resolve) => {
         try {
-        
+         console.log("eventOrMessageID: ", eventOrMessageID);
 	      let itemsDeleted = 0;
 	      await mongoDB.collectionmessages.deleteOne({_id: mongoDB.mongodb.ObjectID(eventOrMessageID)})
 			.then(result => {
@@ -79,7 +79,7 @@ class MessagesService {
 	      )
 		    .catch(err => console.error(`Delete failed with error: ${err}`))
 		
-          resolve(Service.successResponse('Deleted ' + itemsDeleted + ' items'));
+          resolve(Service.successResponse({response: 'Deleted ' + itemsDeleted + ' items'}));
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
@@ -102,14 +102,15 @@ class MessagesService {
     return new Promise(
       async (resolve) => {
         try {
-	      let itemsDeleted = 0;
+	      let itemsDeleted = 0;	      
 	      await mongoDB.collectionmessages.deleteMany({eventId: eventOrMessageID})
 			.then(result => {
 		 	  itemsDeleted = (`${result.deletedCount}`);
-			}
+			}			
 	      )
 		    .catch(err => console.error(`Delete failed with error: ${err}`))
-          resolve(Service.successResponse('Deleted ' + itemsDeleted + ' items'));
+          resolve(Service.successResponse({response: 'Deleted ' + itemsDeleted + ' items'}));
+
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
