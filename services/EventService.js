@@ -16,8 +16,18 @@ class EventService {
     return new Promise(
       async (resolve) => {
         try {
-          await mongoDB.collection.insertOne(body);
-          resolve(Service.successResponse({response: 'Event inserted in DB'}));          
+	        await mongoDB.collection.insertOne(body)
+	        .then(result =>  {
+	        	//console.log(`return ID: , ${result.insertedId}`)
+	        	let eventId = result.insertedId;
+	        	console.log("eventId 1: ", eventId);
+	        	resolve(Service.successResponse({response: eventId}));
+	        })
+	        .catch(err => {
+	        	console.error(`Failed to insert item: ${err}`)	 
+	        	resolve(Service.successResponse({response: 'Error to insert Event in DB'})); 
+	        });
+      
         } catch (e) {
           resolve(Service.rejectResponse(
             e.message || 'Invalid input',
