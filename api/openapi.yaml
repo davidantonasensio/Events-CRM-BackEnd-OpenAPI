@@ -6,7 +6,7 @@ info:
     This is the EventCRM API to cover Events information.  You can find
     out more about EventCRM at
     [https://www.idanas.de](https://www.idanas.de) or on
-    [crm.idanas.de](https://crm.idanas.de)
+    [crm2.idanas.de](https://crm2.idanas.de)
   license:
     name: idanas
     url: http://www.idanas.de
@@ -19,6 +19,7 @@ externalDocs:
 servers:
 - description: SwaggerHub API Auto Mocking
   url: https://virtserver.swaggerhub.com/davidanton/EventCRM/1.0.0
+- url: https://crm2.idanas.de
 - url: http://localhost:3000
 tags:
 - description: Everything about your Events
@@ -54,15 +55,16 @@ paths:
           description: successful operation
         "400":
           description: Invalid status value
-      security:
-      - event_auth:
-        - write:eventAdmin
-        - read:eventAdmin
+      #security:
+      #- event_auth:
+      #  - write:eventAdmin
+      #  - read:eventAdmin
       summary: return all the events
       tags:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
+      x-eov-operation-handler: controllers/EventController
     post:
       operationId: addEvent
       requestBody:
@@ -73,17 +75,24 @@ paths:
         description: Add Event Object to DB
         required: true
       responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+          description: Created Task
         "405":
           description: Invalid input
-      security:
-      - event_auth:
-        - write:eventAdmin
-        - read:eventAdmin
+      #security:
+      #- event_auth:
+      #  - write:eventAdmin
+      #  - read:eventAdmin
       summary: Add a new event to the DB
       tags:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
+      x-eov-operation-handler: controllers/EventController
   /event/{eventID}:
     delete:
       operationId: deleteEventByID
@@ -115,8 +124,10 @@ paths:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
+      x-eov-operation-handler: controllers/EventController
     get:
-      description: Returns a single event given by its ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+      description: Returns a single event given by its ID. Argument passed in must
+        be a single String of 12 bytes or a string of 24 hex characters
       operationId: getEventById
       parameters:
       - description: ID of event to return
@@ -125,8 +136,9 @@ paths:
         name: eventID
         required: true
         schema:
-          type: string
           format: int64
+          type: string
+        style: simple
       responses:
         "200":
           content:
@@ -149,8 +161,10 @@ paths:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
+      x-eov-operation-handler: controllers/EventController
     put:
-      description: Update a event given by its ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+      description: Update a event given by its ID. Argument passed in must be a single
+        String of 12 bytes or a string of 24 hex characters
       operationId: updateEventByID
       parameters:
       - description: ID of event that needs to be updated
@@ -184,6 +198,193 @@ paths:
       - event
       x-openapi-router-controller: EventController
       x-openapi-router-service: EventService
+      x-eov-operation-handler: controllers/EventController
+  /task:
+    get:
+      description: Get all existing tasks in DB
+      operationId: getAllTasks
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Task'
+                type: array
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Task'
+                type: array
+          description: All Tasks
+        "404":
+          description: Tasks not found
+      security:
+      - event_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Get all Tasks
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+    post:
+      operationId: addTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        description: Add Task Object to DB
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: Created Task
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_405'
+          description: Invalid input
+      security:
+      - event_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Add a new task to the DB
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+  /task/{eventOrTaskID}:
+    delete:
+      description: Delete task by task ID. Argument passed in must be a single String
+        of 12 bytes or a string of 24 hex characters
+      operationId: deleteTaskByTaskId
+      parameters:
+      - description: ID of the task that needs to be deleted from the DB
+        explode: false
+        in: path
+        name: eventOrTaskID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+          description: Deleted Task
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_1'
+          description: Invalid Task ID supplied
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Delete task by Task ID
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+    get:
+      description: get all the tasks for the given Event ID. The Id is the event _id.
+        Argument passed in must be a single String of 12 bytes or a string of 24 hex
+        characters
+      operationId: getTasksByEventId
+      parameters:
+      - description: ID of Event DB
+        explode: false
+        in: path
+        name: eventOrTaskID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: successful found tasks for Event
+        "400":
+          description: Tasks for supplied ID not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Find Tasks by eventID
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+    put:
+      description: Update task for the given task ID. The Id is the event _id. Argument
+        passed in must be a single String of 12 bytes or a string of 24 hex characters
+      operationId: updateTask
+      parameters:
+      - description: ID of the event that needs to be updated
+        explode: false
+        in: path
+        name: eventOrTaskID
+        required: true
+        schema:
+          minimum: 1
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: Created Task
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Task not found, ID not found
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_405'
+          description: Invalid input
+      security:
+      - event_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Add a new task to the DB
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
   /messages:
     post:
       description: Add a nuw message to an event given by its ID.
@@ -206,29 +407,80 @@ paths:
                 $ref: '#/components/schemas/Message'
           description: successful introduced message
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_2'
           description: Invalid event ID
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
+      #security:
+      #- eventstore_auth:
+      #  - write:eventAdmin
+      #  - read:eventAdmin
       summary: Place a message from a customer
       tags:
       - messages
       x-openapi-router-controller: MessagesController
       x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
   /messages/{eventOrMessageID}:
-    get:
-      description: get all teh messages for the given Event ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
-      operationId: getMessagesByEventId
+    delete:
+      description: Delete message by MessageID. Argument passed in must be a single
+        String of 12 bytes or a string of 24 hex characters
+      operationId: deleteMessagesByMessagesId
       parameters:
-      - description: ID of Message DB
+      - description: ID of the message that needs to be deleted from the DB
         explode: false
         in: path
         name: eventOrMessageID
         required: true
         schema:
-          type: string
           format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+          description: Message deleted
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_3'
+          description: Invalid messageID supplied
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
+          description: Message not found
+      security:
+      - eventstore_auth:
+        - write:eventAdmin
+        - read:eventAdmin
+      summary: Delete messages by MessagesID
+      tags:
+      - messages
+      x-openapi-router-controller: MessagesController
+      x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
+    get:
+      description: get all the messages for the given Event ID. The Id is the event
+        _id. Argument passed in must be a single String of 12 bytes or a string of
+        24 hex characters
+      operationId: getMessagesByEventId
+      parameters:
+      - description: ID of event DB
+        explode: false
+        in: path
+        name: eventOrMessageID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
       responses:
         "200":
           content:
@@ -252,36 +504,10 @@ paths:
       - messages
       x-openapi-router-controller: MessagesController
       x-openapi-router-service: MessagesService
-    delete:      
-      operationId: deleteMessagesByMessagesId
-      description: Delete message by MessageID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
-      parameters:
-      - description: ID of the message that needs to be deleted from the DB
-        explode: false
-        in: path
-        name: eventOrMessageID
-        required: true
-        schema:
-          type: string
-          format: int64
-      responses:
-        "200":
-          description: Message deleted
-        "400":
-          description: Invalid messageID supplied
-        "404":
-          description: Message not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
-      summary: Delete messages by MessagesID
-      tags:
-      - messages
-      x-openapi-router-controller: MessagesController
-      x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
     put:
-      description: Update one message of one event. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+      description: Update one message of one event. Argument passed in must be a single
+        String of 12 bytes or a string of 24 hex characters
       operationId: updateMessagesByMessageId
       parameters:
       - description: ID of the event that needs to be updated
@@ -305,19 +531,21 @@ paths:
           description: Invalid messageID supplied
         "404":
           description: Message not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
+      #security:
+      #- eventstore_auth:
+      #  - write:eventAdmin
+      #  - read:eventAdmin
       summary: Update messages by MessagesID
       tags:
       - messages
       x-openapi-router-controller: MessagesController
       x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
   /messages/delAll/{eventOrMessageID}:
-    delete:      
+    delete:
+      description: Delete All the messages from a given eventID. Argument passed in
+        must be a single String of 12 bytes or a string of 24 hex characters
       operationId: deleteAllMessagesByEventId
-      description: Delete All the messages from a given eventID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
       parameters:
       - description: ID of the Event that needs to be deleted
         explode: false
@@ -325,14 +553,27 @@ paths:
         name: eventOrMessageID
         required: true
         schema:
-          type: string
           format: int64
+          type: string
+        style: simple
       responses:
         "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
           description: Message deleted
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_4'
           description: Invalid messageID supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
           description: Message not found
       security:
       - eventstore_auth:
@@ -342,11 +583,13 @@ paths:
       tags:
       - messages
       x-openapi-router-controller: MessagesController
-      x-openapi-router-service: MessagesService      
+      x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
   /messages/getOneMessage/{eventOrMessageID}:
-    get:      
+    get:
+      description: Get just one message from a given Message ID. Argument passed in
+        must be a single String of 12 bytes or a string of 24 hex characters
       operationId: getOneMessagesById
-      description: Get just one message from a given Message ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
       parameters:
       - description: ID of the Message
         explode: false
@@ -354,8 +597,9 @@ paths:
         name: eventOrMessageID
         required: true
         schema:
-          type: string
           format: int64
+          type: string
+        style: simple
       responses:
         "200":
           content:
@@ -369,7 +613,7 @@ paths:
         "400":
           description: Invalid messageID supplied
         "404":
-          description: Message not found  
+          description: Message not found
       security:
       - eventstore_auth:
         - write:eventAdmin
@@ -379,6 +623,7 @@ paths:
       - messages
       x-openapi-router-controller: MessagesController
       x-openapi-router-service: MessagesService
+      x-eov-operation-handler: controllers/MessagesController
   /user:
     post:
       description: This can only be done by the logged in user.
@@ -398,6 +643,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
   /user/createWithArray:
     post:
       operationId: createUsersWithArrayInput
@@ -411,6 +657,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
   /user/createWithList:
     post:
       operationId: createUsersWithListInput
@@ -424,6 +671,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
   /user/login:
     get:
       operationId: loginUser
@@ -476,6 +724,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
   /user/logout:
     get:
       operationId: logoutUser
@@ -487,6 +736,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
   /user/{username}:
     delete:
       description: This can only be done by the logged in user.
@@ -510,6 +760,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
     get:
       operationId: getUserByName
       parameters:
@@ -540,6 +791,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
     put:
       description: This can only be done by the logged in user.
       operationId: updateUser
@@ -569,6 +821,7 @@ paths:
       - user
       x-openapi-router-controller: UserController
       x-openapi-router-service: UserService
+      x-eov-operation-handler: controllers/UserController
 components:
   requestBodies:
     Event:
@@ -596,24 +849,25 @@ components:
         myEventId: 20200704_She1-He1
         comments: Comments-01
         source: Source-01
-        firstContactDate: 2020-01-23T12:56:07.000+00:00
+        firstContactDate: 2020-01-23T12:56:07.000Z
         contractStatus: 0
         budget: 3000
+        typeEvent: wedding
         eventInfo:
-          dateEvent: 2020-07-04T11:00:00.000+00:00
+          dateEvent: 2020-07-04T11:00:00.000Z
           eventLocationName: EventLocation-01
-          eventLocationAddress:            
+          eventLocationAddress:
             streetNumber: 18
             street: Street-01
             postalCode: 77777
             location: Location-01
             country: Germany
-        contactPerson:            
+        contactPerson:
           clientName: SheName-01
           clientSurname: SheSurname-01
           clientTel: 1234567890
           clientEmail: SheName-01@email.com
-          clientAddress:                        
+          clientAddress:
             street: StreetName-01
             streetNumber: 13
             postalCode: 77777
@@ -622,18 +876,18 @@ components:
         contractInfo:
           depositPayed: false
           depositToPay: 1000
-          contractDate: 2020-02-23T04:56:07.000+00:00
+          contractDate: 2020-02-23T04:56:07.000Z
           totalPrice: 3000
           totalTime: 10
           services: Services-01
           permisionPublic: true
           products: Products-01
-        client1Info:          
+        client1Info:
           clientName: SheName-01
           clientSurname: SheSurname-01
           clientEmail: SheName-01@email.com
           clientTel: 1234567890
-          clientAddress:                        
+          clientAddress:
             street: StreetName-01
             streetNumber: 14
             postalCode: 77777
@@ -644,7 +898,7 @@ components:
           clientSurname: ErSurname-01
           clientEmail: ErName-01@email.com
           clientTel: 1234567890
-          clientAddress:                        
+          clientAddress:
             street: StreetName-01
             streetNumber: 14
             postalCode: 77777
@@ -674,6 +928,8 @@ components:
           type: string
         budget:
           type: integer
+        typeEvent:
+          type: string
         comments:
           type: string
         eventInfo:
@@ -689,7 +945,7 @@ components:
         name: Event
     EventInfo:
       example:
-        dateEvent: 2000-01-23T04:56:07.000+00:00
+        dateEvent: 2000-01-23T04:56:07.000Z
         eventLocationName: eventLocationName
         eventLocationAddress:
           country: country
@@ -771,7 +1027,7 @@ components:
     ContractInfo:
       example:
         depositPayed: false
-        contractDate: 2000-01-23T04:56:07.000+00:00
+        contractDate: 2000-01-23T04:56:07.000Z
         totalPrice: 3000
         totalTime: totalTime
         depositToPay: 657
@@ -805,8 +1061,8 @@ components:
         myEventId: 20200704_She-01-He-01
         messageText: MessageText
         messageChanel: Email
-        contactDate: 2020-01-23T04:56:07.000+00:00
-        contactPerson: Angela Merkel         
+        contactDate: 2020-01-23T04:56:07.000Z
+        contactPerson: Angela Merkel
       properties:
         eventid:
           description: ID von the Event collection(_id)
@@ -822,6 +1078,121 @@ components:
         messageChanel:
           type: string
         messageText:
+          type: string
+      type: object
+      xml:
+        name: Event
+    Task:
+      example:
+        taskId: 5e54eaeeefa28026d8e6eb4f
+        eventId: 5e54eaeeefa28026d8e6eb4f
+        userId: 5e54eaeeefa28026d8e6eb4f
+        userName: David Anton
+        title: Load bateries
+        piority: 1, 2 or 3
+        percentageDone: 0%
+        categorie: Wedding
+        parentTask: none
+        list: Buying
+        tags: Luxemburg, reserve, hotel
+        location: Oberkich
+        taskBody: Here comes the Task text
+        alarm: true
+        alarmDateTime: 2020-01-23T12:56:07.000Z
+        alarmMedium: email, popup
+        dateCreated: 2020-01-23T04:56:07.000Z
+        dateUpdated: 2020-01-23T04:56:07.000Z
+        dateStart: 2020-01-23T04:56:07.000Z
+        dateEnd: 2020-01-23T04:56:07.000Z
+        dateCompleted: 2020-01-23T04:56:07.000Z
+        files: pdffile.pdf
+      properties:
+        taskId:
+          description: ID von the task
+          type: string
+        eventId:
+          description: Event Id in DB
+          type: string
+        userId:
+          description: If there is a concret user
+          type: string
+        title:
+          description: Title of the task
+          type: string
+        taskBody:
+          description: Body of task
+          type: string
+        piority:
+          default: 3
+          description: Priority 1-height, 2-medium, 3-low
+          enum:
+          - 1
+          - 2
+          - 3
+          format: int32
+          type: integer
+        percentageDone:
+          default: 0
+          description: Done 0%, 25%, 50%, 75%, 100%
+          enum:
+          - 0
+          - 25
+          - 50
+          - 75
+          - 100
+          format: int32
+          type: integer
+        categorie:
+          description: Task Category
+          type: string
+        parentTask:
+          description: in This task is a subtask, the name of parent
+          type: string
+        list:
+          description: List to wich this task belong
+          type: string
+        tags:
+          description: Keywords or tags in relation with task
+          type: string
+        location:
+          description: If there is a location in relation with the task
+          type: string
+        alarm:
+          description: true or false
+          type: boolean
+        alarmDateTime:
+          description: Date and time for the alarm
+          format: date-time
+          type: string
+        alarmMedium:
+          description: Email, popup
+          type: string
+        firstContactDate:
+          format: date-time
+          type: string
+        dateCreated:
+          description: Task creation Date
+          format: date-time
+          type: string
+        dateUpdated:
+          description: Date for the last update
+          format: date-time
+          type: string
+        dateStart:
+          description: Programed date to start the task
+          format: date-time
+          type: string
+        dateEnd:
+          description: Programed date to end the task
+          format: date-time
+          type: string
+        dateCompletion:
+          description: Date of completion
+          format: date-time
+          type: string
+        files:
+          description: atached files to the task
+          format: binary
           type: string
       type: object
       xml:
@@ -867,6 +1238,82 @@ components:
         type:
           type: string
         message:
+          type: string
+      type: object
+    inline_response_405:
+      properties:
+        message:
+          description: Invalid input
+          example: Invalid input
+          type: string
+      type: object
+    inline_response_400:
+      properties:
+        message:
+          description: Invalid input
+          example: Task not found, ID not found
+          type: string
+      type: object
+    inline_response_200:
+      example:
+        message: Complete Task has been deleted
+      properties:
+        message:
+          description: Specified task has been deleted
+          example: Complete Task has been deleted
+          type: string
+      type: object
+    inline_response_400_1:
+      properties:
+        message:
+          description: Invalid task ID supplied
+          example: Invalid task ID supplied or task not found
+          type: string
+      type: object
+    inline_response_400_2:
+      properties:
+        message:
+          description: Invalid event ID
+          example: Invalid event ID
+          type: string
+      type: object
+    inline_response_200_1:
+      example:
+        message: Complete Message has been deleted
+      properties:
+        message:
+          description: Specified Message has been deleted
+          example: Complete Message has been deleted
+          type: string
+      type: object
+    inline_response_400_3:
+      properties:
+        message:
+          description: Invalid messageID suppliedd
+          example: Invalid messageID supplied
+          type: string
+      type: object
+    inline_response_404:
+      properties:
+        message:
+          description: Message not found
+          example: Message not found
+          type: string
+      type: object
+    inline_response_200_2:
+      example:
+        message: Message deleted
+      properties:
+        message:
+          description: Message deleted
+          example: Message deleted
+          type: string
+      type: object
+    inline_response_400_4:
+      properties:
+        message:
+          description: Invalid messageID supplied
+          example: Invalid messageID supplied
           type: string
       type: object
   securitySchemes:

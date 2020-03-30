@@ -1,31 +1,38 @@
+/**
+ * The EventController file is a very simple one, which does not need to be changed manually,
+ * unless there's a case where business logic reoutes the request to an entity which is not
+ * the service.
+ * The heavy lifting of the Controller item is done in Request.js - that is where request
+ * parameters are extracted and sent to the service, and where response is handled.
+ */
+
 const Controller = require('./Controller');
+const service = require('../services/EventService');
+const addEvent = async (request, response) => {
+  await Controller.handleRequest(request, response, service.addEvent);
+};
 
-class EventController {
-  constructor(Service) {
-    this.service = Service;
-  }
+const deleteEventByID = async (request, response) => {
+  await Controller.handleRequest(request, response, service.deleteEventByID);
+};
 
-  async getAllEvents(request, response) {
-		//console.log("COTROLER");
-	    await Controller.handleRequest(request, response, this.service.getAllEvents);
-  }
-  
-  async getEventById(request, response) {	    
-	    await Controller.handleRequest(request, response, this.service.getEventById);
-  }
-  
-  async addEvent(request, response) {
-    await Controller.handleRequest(request, response, this.service.addEvent);
-  }
+const getAllEvents = async (request, response) => {
+  await Controller.handleRequest(request, response, service.getAllEvents);
+};
 
-  async deleteEventByID(request, response) {
-    await Controller.handleRequest(request, response, this.service.deleteEventByID);
-  }
+const getEventById = async (request, response) => {
+  await Controller.handleRequest(request, response, service.getEventById);
+};
 
-  async updateEventByID(request, response) {
-    await Controller.handleRequest(request, response, this.service.updateEventByID);
-  }
+const updateEventByID = async (request, response) => {
+  await Controller.handleRequest(request, response, service.updateEventByID);
+};
 
-}
 
-module.exports = EventController;
+module.exports = {
+  addEvent,
+  deleteEventByID,
+  getAllEvents,
+  getEventById,
+  updateEventByID,
+};
