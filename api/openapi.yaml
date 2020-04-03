@@ -54,7 +54,11 @@ paths:
                 type: array
           description: successful operation
         "400":
-          description: Invalid status value
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Something went wrong
       #security:
       #- event_auth:
       #  - write:eventAdmin
@@ -80,13 +84,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Event'
-          description: Created Task
+          description: Posted Event
         "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_405'
           description: Invalid input
-      #security:
-      #- event_auth:
-      #  - write:eventAdmin
-      #  - read:eventAdmin
       summary: Add a new event to the DB
       tags:
       - event
@@ -113,13 +117,19 @@ paths:
           type: string
         style: simple
       responses:
-        "400":
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
           description: Invalid event value
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
-      summary: Deletes a event
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_3'
+          description: Invalid event value
+      summary: Deletes an event
       tags:
       - event
       x-openapi-router-controller: EventController
@@ -142,21 +152,23 @@ paths:
       responses:
         "200":
           content:
-            application/xml:
-              schema:
-                $ref: '#/components/requestBodies/Event'
             application/json:
               schema:
-                $ref: '#/components/requestBodies/Event'
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
           description: successful operation
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_1'
           description: Invalid ID supplied
-        "404":
-          description: Event not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       tags:
       - event
       x-openapi-router-controller: EventController
@@ -183,16 +195,25 @@ paths:
         description: Updated Event Object in DB
         required: true
       responses:
-        "200":
+        "201":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Event'
+                type: array
           description: succesfull updated event
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_2'
           description: Invalid event ID supplied
-        "404":
-          description: Event not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Updates an event in the DB
       tags:
       - event
@@ -218,11 +239,11 @@ paths:
                 type: array
           description: All Tasks
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404'
           description: Tasks not found
-      security:
-      - event_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Get all Tasks
       tags:
       - task
@@ -249,12 +270,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_405'
+                $ref: '#/components/schemas/inline_response_405_1'
           description: Invalid input
-      security:
-      - event_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Add a new task to the DB
       tags:
       - task
@@ -281,18 +298,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200'
+                $ref: '#/components/schemas/inline_response_200_1'
           description: Deleted Task
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400_1'
+                $ref: '#/components/schemas/inline_response_400_6'
           description: Invalid Task ID supplied
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Delete task by Task ID
       tags:
       - task
@@ -325,11 +338,11 @@ paths:
                 $ref: '#/components/schemas/Task'
           description: successful found tasks for Event
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_4'
           description: Tasks for supplied ID not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Find Tasks by eventID
       tags:
       - task
@@ -337,11 +350,11 @@ paths:
       x-openapi-router-service: TaskService
       x-eov-operation-handler: controllers/TaskController
     put:
-      description: Update task for the given task ID. The Id is the event _id. Argument
+      description: Update task for the given task ID. The Id is the task _id. Argument
         passed in must be a single String of 12 bytes or a string of 24 hex characters
       operationId: updateTask
       parameters:
-      - description: ID of the event that needs to be updated
+      - description: ID of the task that needs to be updated
         explode: false
         in: path
         name: eventOrTaskID
@@ -362,29 +375,199 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Task'
-          description: Created Task
+          description: Updated Task
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400'
+                $ref: '#/components/schemas/inline_response_400_5'
           description: Task not found, ID not found
         "405":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_405'
+                $ref: '#/components/schemas/inline_response_400_5'
           description: Invalid input
-      security:
-      - event_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Add a new task to the DB
       tags:
       - task
       x-openapi-router-controller: TaskController
       x-openapi-router-service: TaskService
       x-eov-operation-handler: controllers/TaskController
+  /calender:
+    get:
+      description: Get all existing dates in DB
+      operationId: getAllDates
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/calender'
+                type: array
+            application/xml:
+              schema:
+                items:
+                  $ref: '#/components/schemas/calender'
+                type: array
+          description: All dates in Calender
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_404_1'
+          description: calenders not found
+      summary: Get all dates
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+    post:
+      operationId: addDate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/calender'
+        description: Add date Object to DB
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calender'
+          description: Date created
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_405_2'
+          description: Invalid input
+      summary: Add a new date to calender into DB
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+  /calender/{eventOrCalenderID}:
+    delete:
+      description: Delete date by date ID. Argument passed in must be a single String
+        of 12 bytes or a string of 24 hex characters
+      operationId: deleteDateByDateId
+      parameters:
+      - description: ID of the date that needs to be deleted from the DB
+        explode: false
+        in: path
+        name: eventOrCalenderID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+          description: Deleted date
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_9'
+          description: Invalid date ID supplied
+      summary: Delete date by date ID
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+    get:
+      description: get all the Dates for the given Event ID. The Id is the event _id.
+        Argument passed in must be a single String of 12 bytes or a string of 24 hex
+        characters
+      operationId: getAllDatesByEventId
+      parameters:
+      - description: ID of Event DB
+        explode: false
+        in: path
+        name: eventOrCalenderID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calender'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/calender'
+          description: successful found dates for Event id
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_7'
+          description: Dates for supplied ID not found
+      summary: Find dates by eventID
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+    put:
+      description: Update dates for the given date ID. The Id is the date. Argument
+        passed in must be a single String of 12 bytes or a string of 24 hex characters
+      operationId: updateDateByID
+      parameters:
+      - description: ID of the date that needs to be updated
+        explode: false
+        in: path
+        name: eventOrCalenderID
+        required: true
+        schema:
+          minimum: 1
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/calender'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calender'
+          description: Updated date
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_8'
+          description: date not found, ID not found
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_8'
+          description: Invalid input
+      summary: Add a new calender to the DB
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
   /messages:
     post:
       description: Add a nuw message to an event given by its ID.
@@ -397,7 +580,7 @@ paths:
         description: Write a new Message for event in DB
         required: true
       responses:
-        "200":
+        "201":
           content:
             application/json:
               schema:
@@ -410,12 +593,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400_2'
+                $ref: '#/components/schemas/inline_response_400_10'
           description: Invalid event ID
-      #security:
-      #- eventstore_auth:
-      #  - write:eventAdmin
-      #  - read:eventAdmin
       summary: Place a message from a customer
       tags:
       - messages
@@ -442,24 +621,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_1'
+                $ref: '#/components/schemas/inline_response_200_3'
           description: Message deleted
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400_3'
+                $ref: '#/components/schemas/inline_response_400_13'
           description: Invalid messageID supplied
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_404'
+                $ref: '#/components/schemas/inline_response_404_2'
           description: Message not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Delete messages by MessagesID
       tags:
       - messages
@@ -492,13 +667,17 @@ paths:
                 $ref: '#/components/schemas/Message'
           description: successful found messages for Event
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_11'
           description: Invalid ID supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_11'
           description: Messages not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Find messages by eventID
       tags:
       - messages
@@ -525,16 +704,27 @@ paths:
             schema:
               $ref: '#/components/schemas/Message'
       responses:
-        "200":
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Message'
           description: Message updated
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_12'
           description: Invalid messageID supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_12'
           description: Message not found
-      #security:
-      #- eventstore_auth:
-      #  - write:eventAdmin
-      #  - read:eventAdmin
       summary: Update messages by MessagesID
       tags:
       - messages
@@ -561,24 +751,20 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_200_2'
+                $ref: '#/components/schemas/inline_response_200_4'
           description: Message deleted
         "400":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_400_4'
+                $ref: '#/components/schemas/inline_response_400_14'
           description: Invalid messageID supplied
         "404":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/inline_response_404'
+                $ref: '#/components/schemas/inline_response_404_2'
           description: Message not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Delete messages by MessagesID
       tags:
       - messages
@@ -611,13 +797,17 @@ paths:
                 $ref: '#/components/schemas/Message'
           description: successful found message for ID
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_15'
           description: Invalid messageID supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_15'
           description: Message not found
-      security:
-      - eventstore_auth:
-        - write:eventAdmin
-        - read:eventAdmin
       summary: Delete messages by MessagesID
       tags:
       - messages
@@ -697,10 +887,10 @@ paths:
           content:
             application/json:
               schema:
-                type: string
+                $ref: '#/components/schemas/inline_response_200_5'
             application/xml:
               schema:
-                type: string
+                $ref: '#/components/schemas/inline_response_200_5'
           description: successful operation
           headers:
             X-Rate-Limit:
@@ -718,6 +908,10 @@ paths:
                 type: string
               style: simple
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_16'
           description: Invalid username/password supplied
       summary: Logs user into the system
       tags:
@@ -730,6 +924,10 @@ paths:
       operationId: logoutUser
       responses:
         default:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_default'
           description: successful operation
       summary: Logs out current logged in user session
       tags:
@@ -752,8 +950,16 @@ paths:
         style: simple
       responses:
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_19'
           description: Invalid username supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_19'
           description: User not found
       summary: Delete user
       tags:
@@ -783,8 +989,16 @@ paths:
                 $ref: '#/components/schemas/User'
           description: successful operation
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_17'
           description: Invalid username supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_17'
           description: User not found
       summary: Get user by user name
       tags:
@@ -813,8 +1027,16 @@ paths:
         required: true
       responses:
         "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_18'
           description: Invalid user supplied
         "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_18'
           description: User not found
       summary: Updated user
       tags:
@@ -846,6 +1068,8 @@ components:
   schemas:
     Event:
       example:
+        _id: 5e54eaeeefa28026d8e6eb4f
+        userId: 5e54eaeeefa28026d8e6eb4f
         myEventId: 20200704_She1-He1
         comments: Comments-01
         source: Source-01
@@ -905,8 +1129,11 @@ components:
             location: Location-01
             country: Country-01
       properties:
-        id:
+        _id:
           description: Automatic MongoDB ID
+          type: string
+        userId:
+          description: User ID
           type: string
         myEventId:
           description: my own ID
@@ -1057,6 +1284,8 @@ components:
         name: Event
     Message:
       example:
+        _id: 5e54eaeeefa28026d8e6eb4f
+        userId: 5e54eaeeefa28026d8e6eb4f
         eventId: 5e54eaeeefa28026d8e6eb4f
         myEventId: 20200704_She-01-He-01
         messageText: MessageText
@@ -1064,8 +1293,14 @@ components:
         contactDate: 2020-01-23T04:56:07.000Z
         contactPerson: Angela Merkel
       properties:
+        _id:
+          description: ID von the message
+          type: string
         eventid:
           description: ID von the Event collection(_id)
+          type: string
+        userId:
+          description: User ID
           type: string
         myEventId:
           description: my own ID
@@ -1084,7 +1319,7 @@ components:
         name: Event
     Task:
       example:
-        taskId: 5e54eaeeefa28026d8e6eb4f
+        _id: 5e54eaeeefa28026d8e6eb4f
         eventId: 5e54eaeeefa28026d8e6eb4f
         userId: 5e54eaeeefa28026d8e6eb4f
         userName: David Anton
@@ -1107,7 +1342,7 @@ components:
         dateCompleted: 2020-01-23T04:56:07.000Z
         files: pdffile.pdf
       properties:
-        taskId:
+        _id:
           description: ID von the task
           type: string
         eventId:
@@ -1142,7 +1377,7 @@ components:
           - 100
           format: int32
           type: integer
-        categorie:
+        category:
           description: Task Category
           type: string
         parentTask:
@@ -1197,6 +1432,97 @@ components:
       type: object
       xml:
         name: Event
+    calender:
+      example:
+        _id: 5e54eaeeefa28026d8e6eb4f
+        eventId: 5e54eaeeefa28026d8e6eb4f
+        userId: 5e54eaeeefa28026d8e6eb4f
+        dateTimeBegin: 2020-01-23T12:56:07.000Z
+        dateTimeEnd: 2020-01-23T12:56:07.000Z
+        calenderName: Weddings
+        title: Meeting with Groom
+        body: Any description here
+        location: Oberkirch
+        piority: 3
+        category: Weddings
+        tags: Some Tags separated with coma
+        status: 0
+        alarm: true
+        alarmDateTime: 2020-01-23T12:56:07.000Z
+        alarmMedium: Email
+        files: finle.pdf
+      properties:
+        _id:
+          description: ID von the task
+          type: string
+        eventId:
+          description: Event Id in DB
+          type: string
+        userId:
+          description: If there is a concret user
+          type: string
+        dateTimeBegin:
+          description: Programed initial date and time
+          format: date-time
+          type: string
+        dateTimeEnd:
+          description: Programed end date and time
+          format: date-time
+          type: string
+        calenderName:
+          description: general is defualt calender
+          type: string
+        title:
+          description: Title of the date
+          type: string
+        body:
+          description: body or message of the date
+          type: string
+        location:
+          description: If there is a location in relation with the task
+          type: string
+        piority:
+          default: 3
+          description: Priority 1-height, 2-medium, 3-low
+          enum:
+          - 1
+          - 2
+          - 3
+          format: int32
+          type: integer
+        category:
+          description: Task Category
+          type: string
+        tags:
+          description: Keywords or tags in relation with task
+          type: string
+        status:
+          default: 0
+          description: Date Status 0-No estatus 1-Provisional, 2-Confirmed, 3-Canceled
+          enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          format: int32
+          type: integer
+        alarm:
+          description: true or false
+          type: boolean
+        alarmDateTime:
+          description: Date and time for the alarm
+          format: date-time
+          type: string
+        alarmMedium:
+          description: Email, popup
+          type: string
+        files:
+          description: atached files to the task
+          format: binary
+          type: string
+      type: object
+      xml:
+        name: Event
     User:
       example:
         firstName: firstName
@@ -1209,8 +1535,8 @@ components:
         username: username
       properties:
         id:
-          format: int64
-          type: integer
+          description: If there is a concret user
+          type: string
         username:
           type: string
         firstName:
@@ -1240,21 +1566,79 @@ components:
         message:
           type: string
       type: object
-    inline_response_405:
-      properties:
-        message:
-          description: Invalid input
-          example: Invalid input
-          type: string
-      type: object
     inline_response_400:
       properties:
-        message:
-          description: Invalid input
-          example: Task not found, ID not found
+        Error:
+          description: Error processing get Events
+          example: Error processing get Events
+          type: string
+      type: object
+    inline_response_405:
+      properties:
+        Error:
+          description: Error processing post new Events
+          example: Error processing post new Events
+          type: string
+      type: object
+    inline_response_400_1:
+      properties:
+        Error:
+          description: Error getting Events by its ID
+          example: Error deleting Events by its ID
+          type: string
+      type: object
+    inline_response_400_2:
+      properties:
+        Error:
+          description: Error updating Events by its ID
+          example: Error updating Events by its ID
           type: string
       type: object
     inline_response_200:
+      example:
+        Error: Succesfuly deleted Event and its resources
+      properties:
+        Error:
+          description: Succesfuly deleted Event and its resources
+          example: Succesfuly deleted Event and its resources
+          type: string
+      type: object
+    inline_response_400_3:
+      properties:
+        Error:
+          description: Error deleting Events by its ID
+          example: Error deleting Events by its ID
+          type: string
+      type: object
+    inline_response_404:
+      properties:
+        Error:
+          description: Error getting All the tasks
+          example: Error getting All the tasks
+          type: string
+      type: object
+    inline_response_405_1:
+      properties:
+        message:
+          description: Error Posting task
+          example: Error Posting task
+          type: string
+      type: object
+    inline_response_400_4:
+      properties:
+        message:
+          description: Error getting task by ID
+          example: Error getting task by ID
+          type: string
+      type: object
+    inline_response_400_5:
+      properties:
+        message:
+          description: Not possible to update task by ID
+          example: Not possible to update task by ID
+          type: string
+      type: object
+    inline_response_200_1:
       example:
         message: Complete Task has been deleted
       properties:
@@ -1263,21 +1647,79 @@ components:
           example: Complete Task has been deleted
           type: string
       type: object
-    inline_response_400_1:
+    inline_response_400_6:
       properties:
         message:
           description: Invalid task ID supplied
           example: Invalid task ID supplied or task not found
           type: string
       type: object
-    inline_response_400_2:
+    inline_response_404_1:
+      properties:
+        Error:
+          description: Error getting All the dates
+          example: Error getting All the dates
+          type: string
+      type: object
+    inline_response_405_2:
+      properties:
+        message:
+          description: Error Posting date
+          example: Error Posting date
+          type: string
+      type: object
+    inline_response_400_7:
+      properties:
+        message:
+          description: Error getting dates by ID
+          example: Error getting dates by ID
+          type: string
+      type: object
+    inline_response_400_8:
+      properties:
+        message:
+          description: Not possible to update date by ID
+          example: Not possible to update date by ID
+          type: string
+      type: object
+    inline_response_200_2:
+      example:
+        message: Complete date has been deleted
+      properties:
+        message:
+          description: Specified date has been deleted
+          example: Complete date has been deleted
+          type: string
+      type: object
+    inline_response_400_9:
+      properties:
+        message:
+          description: Invalid date ID supplied
+          example: Invalid date ID supplied or date not found
+          type: string
+      type: object
+    inline_response_400_10:
       properties:
         message:
           description: Invalid event ID
           example: Invalid event ID
           type: string
       type: object
-    inline_response_200_1:
+    inline_response_400_11:
+      properties:
+        message:
+          description: Not posible to get message by ID
+          example: Invalid task ID supplied or task not found
+          type: string
+      type: object
+    inline_response_400_12:
+      properties:
+        message:
+          description: Not posible to update message by ID
+          example: Not posible to update message by ID
+          type: string
+      type: object
+    inline_response_200_3:
       example:
         message: Complete Message has been deleted
       properties:
@@ -1286,21 +1728,21 @@ components:
           example: Complete Message has been deleted
           type: string
       type: object
-    inline_response_400_3:
+    inline_response_400_13:
       properties:
         message:
           description: Invalid messageID suppliedd
           example: Invalid messageID supplied
           type: string
       type: object
-    inline_response_404:
+    inline_response_404_2:
       properties:
         message:
           description: Message not found
           example: Message not found
           type: string
       type: object
-    inline_response_200_2:
+    inline_response_200_4:
       example:
         message: Message deleted
       properties:
@@ -1309,18 +1751,71 @@ components:
           example: Message deleted
           type: string
       type: object
-    inline_response_400_4:
+    inline_response_400_14:
       properties:
         message:
           description: Invalid messageID supplied
           example: Invalid messageID supplied
           type: string
       type: object
+    inline_response_400_15:
+      properties:
+        message:
+          description: Not possible to get message by ID
+          example: Not possible to get message by ID
+          type: string
+      type: object
+    inline_response_200_5:
+      example:
+        login: Succesfull login
+      properties:
+        login:
+          description: Succesfull login
+          example: Succesfull login
+          type: string
+      type: object
+    inline_response_400_16:
+      properties:
+        login:
+          description: Not possible to login
+          example: Not possible to login
+          type: string
+      type: object
+    inline_response_default:
+      example:
+        login: Successful Logout
+      properties:
+        login:
+          description: Successful Logout
+          example: Successful Logout
+          type: string
+      type: object
+    inline_response_400_17:
+      properties:
+        login:
+          description: Not possible to Get User by Name
+          example: Not possible to Get User by Name
+          type: string
+      type: object
+    inline_response_400_18:
+      properties:
+        login:
+          description: Not possible to update User by Name
+          example: Not possible to update User by Name
+          type: string
+      type: object
+    inline_response_400_19:
+      properties:
+        login:
+          description: Not possible delete User
+          example: Not possible delete User
+          type: string
+      type: object
   securitySchemes:
     eventstore_auth:
       flows:
         implicit:
-          authorizationUrl: https://crm.idanas.de/oauth/dialog
+          authorizationUrl: https://crm2.idanas.de/oauth/dialog
           scopes:
             write:eventAdmin: modify event in DB
             read:eventAdmin: read your DB

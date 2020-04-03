@@ -108,7 +108,7 @@ const getUserByName = ({ username }) => new Promise(
 *
 * username String The user name for login
 * password String The password for login in clear text
-* returns String
+* returns inline_response_200_5
 * */
 const loginUser = ({ username, password }) => new Promise(
   async (resolve, reject) => {
@@ -128,7 +128,7 @@ const loginUser = ({ username, password }) => new Promise(
 /**
 * Logs out current logged in user session
 *
-* no response value expected for this operation
+* returns inline_response_default
 * */
 const logoutUser = () => new Promise(
   async (resolve, reject) => {

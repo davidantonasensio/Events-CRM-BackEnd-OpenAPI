@@ -3,15 +3,15 @@ const Service = require('./Service');
 const mongoDB = require('../utils/mongoDBConnect');
 
 /**
-* Add a new task to the DB
+* Add a new date to calender into DB
 *
-* task Task Add Task Object to DB
-* returns Task
+* calender Calender Add date Object to DB
+* returns calender
 * */
-const addTask = ({ body }) => new Promise(
+const addDate = ({ body }) => new Promise(
   async (resolve, reject) => {
     try {
-        await mongoDB.collectiontask.insertOne(body)
+        await mongoDB.collectioncalender.insertOne(body)
         .then(result =>  {
         	let eventId = result.insertedId;
         	resolve(Service.successResponse({response: eventId}));
@@ -30,17 +30,17 @@ const addTask = ({ body }) => new Promise(
   },
 );
 /**
-* Delete task by Task ID
-* Delete task by task ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+* Delete date by date ID
+* Delete date by date ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
 *
-* eventOrTaskID String ID of the task that needs to be deleted from the DB
-* returns inline_response_200
+* eventOrCalenderID String ID of the date that needs to be deleted from the DB
+* returns inline_response_200_2
 * */
-const deleteTaskByTaskId = ({ eventOrTaskID }) => new Promise(
+const deleteDateByDateId = ({ eventOrCalenderID }) => new Promise(
   async (resolve, reject) => {
     try {
 	      let itemsDeleted = 0;
-	      await mongoDB.collectiontask.deleteOne({_id: mongoDB.mongodb.ObjectID(eventOrTaskID)})
+	      await mongoDB.collectioncalender.deleteOne({_id: mongoDB.mongodb.ObjectID(eventOrCalenderID)})
 			.then(result => {
 		 	  itemsDeleted = (`${result.deletedCount}`);
 			}
@@ -57,16 +57,16 @@ const deleteTaskByTaskId = ({ eventOrTaskID }) => new Promise(
   },
 );
 /**
-* Get all Tasks
-* Get all existing tasks in DB
+* Get all dates
+* Get all existing dates in DB
 *
 * returns List
 * */
-const getAllTasks = () => new Promise(
+const getAllDates = () => new Promise(
   async (resolve, reject) => {
     try {
         let eventsArray = [];
-        eventsArray = await mongoDB.collectiontask.find({}).toArray();
+        eventsArray = await mongoDB.collectioncalender.find({}).toArray();
         resolve(Service.successResponse(eventsArray));
     } catch (e) {
       reject(Service.rejectResponse(
@@ -77,17 +77,17 @@ const getAllTasks = () => new Promise(
   },
 );
 /**
-* Find Tasks by eventID
-* get all the tasks for the given Event ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+* Find dates by eventID
+* get all the Dates for the given Event ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
 *
-* eventOrTaskID String ID of Event DB
-* returns Task
+* eventOrCalenderID String ID of Event DB
+* returns calender
 * */
-const getTasksByEventId = ({ eventOrTaskID }) => new Promise(
+const getAllDatesByEventId = ({ eventOrCalenderID }) => new Promise(
   async (resolve, reject) => {
     try {
     	let eventByIdArray = [];
-    	eventByIdArray = await mongoDB.collectiontask.find({eventId: eventOrTaskID}).toArray();
+    	eventByIdArray = await mongoDB.collectioncalender.find({eventId: eventOrCalenderID}).toArray();
         resolve(Service.successResponse(eventByIdArray));
     } catch (e) {
       reject(Service.rejectResponse(
@@ -98,19 +98,19 @@ const getTasksByEventId = ({ eventOrTaskID }) => new Promise(
   },
 );
 /**
-* Add a new task to the DB
-* Update task for the given task ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+* Add a new calender to the DB
+* Update dates for the given date ID. The Id is the date. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
 *
-* eventOrTaskID String ID of the event that needs to be updated
-* task Task 
-* returns Task
+* eventOrCalenderID String ID of the date that needs to be updated
+* calender Calender 
+* returns calender
 * */
-const updateTask = ({ eventOrTaskID, body }) => new Promise(
+const updateDateByID = ({ eventOrCalenderID, body }) => new Promise(
   async (resolve, reject) => {
     try {
-        await mongoDB.collectiontask.updateOne(
+        await mongoDB.collectioncalender.updateOne(
                 {
-                  _id: mongoDB.mongodb.ObjectID(eventOrTaskID)
+                  _id: mongoDB.mongodb.ObjectID(eventOrCalenderID)
                 },
                 {$set: body});
                 
@@ -125,9 +125,9 @@ const updateTask = ({ eventOrTaskID, body }) => new Promise(
 );
 
 module.exports = {
-  addTask,
-  deleteTaskByTaskId,
-  getAllTasks,
-  getTasksByEventId,
-  updateTask,
+  addDate,
+  deleteDateByDateId,
+  getAllDates,
+  getAllDatesByEventId,
+  updateDateByID,
 };
