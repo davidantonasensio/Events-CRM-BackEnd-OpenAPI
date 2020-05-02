@@ -1368,12 +1368,18 @@ components:
           type: integer
         percentageDone:
           default: 0
-          description: Done 0%, 25%, 50%, 75%, 100%
+          description: Done 0%, 10%, 20%, ... 100%
           enum:
           - 0
-          - 25
+          - 10
+          - 20
+          - 30
+          - 40
           - 50
-          - 75
+          - 60
+          - 70
+          - 80
+          - 90
           - 100
           format: int32
           type: integer
