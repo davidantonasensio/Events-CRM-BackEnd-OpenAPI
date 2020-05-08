@@ -29,6 +29,7 @@ const addTask = ({ body }) => new Promise(
     }
   },
 );
+
 /**
 * Delete task by Task ID
 * Delete task by task ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
@@ -36,11 +37,11 @@ const addTask = ({ body }) => new Promise(
 * eventOrTaskID String ID of the task that needs to be deleted from the DB
 * returns inline_response_200
 * */
-const deleteTaskByTaskId = ({ eventOrTaskID }) => new Promise(
+const deleteTaskByTaskId = ({ TaskID }) => new Promise(
   async (resolve, reject) => {
     try {
 	      let itemsDeleted = 0;
-	      await mongoDB.collectiontask.deleteOne({_id: mongoDB.mongodb.ObjectID(eventOrTaskID)})
+	      await mongoDB.collectiontask.deleteOne({_id: mongoDB.mongodb.ObjectID(TaskID)})
 			.then(result => {
 		 	  itemsDeleted = (`${result.deletedCount}`);
 			}
@@ -56,6 +57,35 @@ const deleteTaskByTaskId = ({ eventOrTaskID }) => new Promise(
     }
   },
 );
+
+/**
+* Delete All task of one Event if event is deleted by e+vent ID
+* Delete task by event ID. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+*
+* eventOrTaskID String ID of the task that needs to be deleted from the DB
+* returns inline_response_200
+* */
+const deleteTaskByEventId = ({ EventID }) => new Promise(
+  async (resolve, reject) => {
+    try {
+	      let itemsDeleted = 0;
+	      await mongoDB.collectiontask.deleteMany({eventId: EventID})
+			.then(result => {
+		 	  itemsDeleted = (`${result.deletedCount}`);
+			}
+	      )
+		    .catch(err => console.error(`Delete failed with error: ${err}`))
+		
+        resolve(Service.successResponse({response: 'Deleted ' + itemsDeleted + ' items'}));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
 /**
 * Get all Tasks
 * Get all existing tasks in DB
@@ -76,18 +106,19 @@ const getAllTasks = () => new Promise(
     }
   },
 );
+
 /**
 * Find Tasks by eventID
 * get all the tasks for the given Event ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
 *
-* eventOrTaskID String ID of Event DB
+* EventID String ID of Event DB
 * returns Task
 * */
-const getTasksByEventId = ({ eventOrTaskID }) => new Promise(
+const getTasksByEventId = ({ EventID }) => new Promise(		
   async (resolve, reject) => {
     try {
     	let eventByIdArray = [];
-    	eventByIdArray = await mongoDB.collectiontask.find({eventId: eventOrTaskID}).toArray();
+    	eventByIdArray = await mongoDB.collectiontask.find({eventId: EventID}).toArray();
         resolve(Service.successResponse(eventByIdArray));
     } catch (e) {
       reject(Service.rejectResponse(
@@ -97,6 +128,29 @@ const getTasksByEventId = ({ eventOrTaskID }) => new Promise(
     }
   },
 );
+
+/**
+* Find Tasks by TaskID
+* get one task for the given Task ID. The Id is the task _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
+*
+* TaskID String ID of Event DB
+* returns Task
+* */
+const getOneTaskByTaskId = ({ TaskID }) => new Promise(
+  async (resolve, reject) => {
+    try {
+    	let eventByIdArray = [];
+    	eventByIdArray = await mongoDB.collectiontask.find({_id: mongoDB.mongodb.ObjectID(TaskID)}).toArray();
+        resolve(Service.successResponse(eventByIdArray));
+    } catch (e) {
+      reject(Service.rejectResponse(
+        e.message || 'Invalid input',
+        e.status || 405,
+      ));
+    }
+  },
+);
+
 /**
 * Add a new task to the DB
 * Update task for the given task ID. The Id is the event _id. Argument passed in must be a single String of 12 bytes or a string of 24 hex characters
@@ -105,12 +159,12 @@ const getTasksByEventId = ({ eventOrTaskID }) => new Promise(
 * task Task 
 * returns Task
 * */
-const updateTask = ({ eventOrTaskID, body }) => new Promise(
+const updateTask = ({ TaskID, body }) => new Promise(
   async (resolve, reject) => {
     try {
         await mongoDB.collectiontask.updateOne(
                 {
-                  _id: mongoDB.mongodb.ObjectID(eventOrTaskID)
+                  _id: mongoDB.mongodb.ObjectID(TaskID)
                 },
                 {$set: body});
                 
@@ -127,7 +181,9 @@ const updateTask = ({ eventOrTaskID, body }) => new Promise(
 module.exports = {
   addTask,
   deleteTaskByTaskId,
+  deleteTaskByEventId,
   getAllTasks,
+  getOneTaskByTaskId,
   getTasksByEventId,
   updateTask,
 };

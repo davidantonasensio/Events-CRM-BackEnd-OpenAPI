@@ -8,6 +8,7 @@
 
 const Controller = require('./Controller');
 const service = require('../services/TaskService');
+
 const addTask = async (request, response) => {
   await Controller.handleRequest(request, response, service.addTask);
 };
@@ -16,9 +17,21 @@ const deleteTaskByTaskId = async (request, response) => {
   await Controller.handleRequest(request, response, service.deleteTaskByTaskId);
 };
 
+//new
+const deleteTaskByEventId = async (request, response) => {
+	  await Controller.handleRequest(request, response, service.deleteTaskByEventId);
+};
+
+//new
 const getAllTasks = async (request, response) => {
   await Controller.handleRequest(request, response, service.getAllTasks);
 };
+
+// modified
+const getOneTaskByTaskId = async (request, response) => {
+	  await Controller.handleRequest(request, response, service.getOneTaskByTaskId);
+	};
+
 
 const getTasksByEventId = async (request, response) => {
   await Controller.handleRequest(request, response, service.getTasksByEventId);
@@ -32,7 +45,9 @@ const updateTask = async (request, response) => {
 module.exports = {
   addTask,
   deleteTaskByTaskId,
-  getAllTasks,
+  deleteTaskByEventId,
   getTasksByEventId,
+  getAllTasks,
+  getOneTaskByTaskId,
   updateTask,
 };

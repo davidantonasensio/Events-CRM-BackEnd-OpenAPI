@@ -12,8 +12,12 @@ const addDate = async (request, response) => {
   await Controller.handleRequest(request, response, service.addDate);
 };
 
-const deleteDateByDateId = async (request, response) => {
-  await Controller.handleRequest(request, response, service.deleteDateByDateId);
+const deleteOneDateByDateId = async (request, response) => {
+	  await Controller.handleRequest(request, response, service.deleteOneDateByDateId);
+};
+
+const deleteAllDatesByEventId = async (request, response) => {
+  await Controller.handleRequest(request, response, service.deleteAllDatesByEventId);
 };
 
 const getAllDates = async (request, response) => {
@@ -24,15 +28,21 @@ const getAllDatesByEventId = async (request, response) => {
   await Controller.handleRequest(request, response, service.getAllDatesByEventId);
 };
 
-const updateDateByID = async (request, response) => {
-  await Controller.handleRequest(request, response, service.updateDateByID);
+const getOneDateByDateId = async (request, response) => {
+	  await Controller.handleRequest(request, response, service.getOneDateByDateId);
+	};
+
+const updateOneDateByDateid = async (request, response) => {
+  await Controller.handleRequest(request, response, service.updateOneDateByDateid);
 };
 
 
 module.exports = {
   addDate,
-  deleteDateByDateId,
+  deleteOneDateByDateId,
+  deleteAllDatesByEventId,
   getAllDates,
   getAllDatesByEventId,
-  updateDateByID,
+  getOneDateByDateId,
+  updateOneDateByDateid,
 };

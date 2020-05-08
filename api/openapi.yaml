@@ -278,16 +278,132 @@ paths:
       x-openapi-router-controller: TaskController
       x-openapi-router-service: TaskService
       x-eov-operation-handler: controllers/TaskController
-  /task/{eventOrTaskID}:
+  /oneTask/{TaskID}:
     delete:
-      description: Delete task by task ID. Argument passed in must be a single String
+      description: Delete one task by task ID. Argument passed in must be a single String
         of 12 bytes or a string of 24 hex characters
       operationId: deleteTaskByTaskId
       parameters:
       - description: ID of the task that needs to be deleted from the DB
         explode: false
         in: path
-        name: eventOrTaskID
+        name: TaskID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+          description: Deleted Task
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_6'
+          description: Invalid Task ID supplied
+      summary: Delete task by Task ID
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+    get:
+      description: get one tasks for the given Task ID. The Id is the task _id.
+        Argument passed in must be a single String of 12 bytes or a string of 24 hex
+        characters
+      operationId: getOneTaskByTaskId
+      parameters:
+      - description: ID of Event DB
+        explode: false
+        in: path
+        name: TaskID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: successful found tasks for Event
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_4'
+          description: Tasks for supplied ID not found
+      summary: Find Tasks by taskID
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+    put:
+      description: Update task for the given task ID. The Id is the task _id. Argument
+        passed in must be a single String of 12 bytes or a string of 24 hex characters
+      operationId: updateTask
+      parameters:
+      - description: ID of the task that needs to be updated
+        explode: false
+        in: path
+        name: TaskID
+        required: true
+        schema:
+          minimum: 1
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: Updated Task
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_5'
+          description: Task not found, ID not found
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_5'
+          description: Invalid input
+      summary: Add a new task to the DB
+      tags:
+      - task
+      x-openapi-router-controller: TaskController
+      x-openapi-router-service: TaskService
+      x-eov-operation-handler: controllers/TaskController
+  /task/{EventID}:
+    delete:
+      description: Delete all task by event ID. Argument passed in must be a single String
+        of 12 bytes or a string of 24 hex characters
+      operationId: deleteTaskByEventId
+      parameters:
+      - description: ID of the task that needs to be deleted from the DB
+        explode: false
+        in: path
+        name: EventID
         required: true
         schema:
           format: int64
@@ -321,7 +437,7 @@ paths:
       - description: ID of Event DB
         explode: false
         in: path
-        name: eventOrTaskID
+        name: EventID
         required: true
         schema:
           format: int64
@@ -344,51 +460,6 @@ paths:
                 $ref: '#/components/schemas/inline_response_400_4'
           description: Tasks for supplied ID not found
       summary: Find Tasks by eventID
-      tags:
-      - task
-      x-openapi-router-controller: TaskController
-      x-openapi-router-service: TaskService
-      x-eov-operation-handler: controllers/TaskController
-    put:
-      description: Update task for the given task ID. The Id is the task _id. Argument
-        passed in must be a single String of 12 bytes or a string of 24 hex characters
-      operationId: updateTask
-      parameters:
-      - description: ID of the task that needs to be updated
-        explode: false
-        in: path
-        name: eventOrTaskID
-        required: true
-        schema:
-          minimum: 1
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Task'
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Task'
-          description: Updated Task
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400_5'
-          description: Task not found, ID not found
-        "405":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400_5'
-          description: Invalid input
-      summary: Add a new task to the DB
       tags:
       - task
       x-openapi-router-controller: TaskController
@@ -452,16 +523,132 @@ paths:
       x-openapi-router-controller: CalenderController
       x-openapi-router-service: CalenderService
       x-eov-operation-handler: controllers/CalenderController
-  /calender/{eventOrCalenderID}:
+  /oneDate/{DateID}:
     delete:
       description: Delete date by date ID. Argument passed in must be a single String
         of 12 bytes or a string of 24 hex characters
-      operationId: deleteDateByDateId
+      operationId: deleteOneDateByDateId
       parameters:
       - description: ID of the date that needs to be deleted from the DB
         explode: false
         in: path
-        name: eventOrCalenderID
+        name: DateID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+          description: Deleted date
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_9'
+          description: Invalid date ID supplied
+      summary: Delete date by date ID
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+    get:
+      description: get one date for the given date ID. The Id is the date _id.
+        Argument passed in must be a single String of 12 bytes or a string of 24 hex
+        characters
+      operationId: getOneDateByDateId
+      parameters:
+      - description: ID of Date in DB
+        explode: false
+        in: path
+        name: DateID
+        required: true
+        schema:
+          format: int64
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calender'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/calender'
+          description: successful found dates for Event id
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_7'
+          description: Dates for supplied ID not found
+      summary: Find dates by eventID
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+    put:
+      description: Update dates for the given date ID. The Id is the date. Argument
+        passed in must be a single String of 12 bytes or a string of 24 hex characters
+      operationId: updateOneDateByDateid
+      parameters:
+      - description: ID of the date that needs to be updated
+        explode: false
+        in: path
+        name: DateID
+        required: true
+        schema:
+          minimum: 1
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/calender'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calender'
+          description: Updated date
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_8'
+          description: date not found, ID not found
+        "405":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_400_8'
+          description: Invalid input
+      summary: Add a new calender to the DB
+      tags:
+      - calender
+      x-openapi-router-controller: CalenderController
+      x-openapi-router-service: CalenderService
+      x-eov-operation-handler: controllers/CalenderController
+  /calender/{EventID}:
+    delete:
+      description: Delete date by date ID. Argument passed in must be a single String
+        of 12 bytes or a string of 24 hex characters
+      operationId: deleteAllDatesByEventId
+      parameters:
+      - description: ID of the date that needs to be deleted from the DB
+        explode: false
+        in: path
+        name: EventID
         required: true
         schema:
           format: int64
@@ -495,7 +682,7 @@ paths:
       - description: ID of Event DB
         explode: false
         in: path
-        name: eventOrCalenderID
+        name: EventID
         required: true
         schema:
           format: int64
@@ -518,51 +705,6 @@ paths:
                 $ref: '#/components/schemas/inline_response_400_7'
           description: Dates for supplied ID not found
       summary: Find dates by eventID
-      tags:
-      - calender
-      x-openapi-router-controller: CalenderController
-      x-openapi-router-service: CalenderService
-      x-eov-operation-handler: controllers/CalenderController
-    put:
-      description: Update dates for the given date ID. The Id is the date. Argument
-        passed in must be a single String of 12 bytes or a string of 24 hex characters
-      operationId: updateDateByID
-      parameters:
-      - description: ID of the date that needs to be updated
-        explode: false
-        in: path
-        name: eventOrCalenderID
-        required: true
-        schema:
-          minimum: 1
-          type: string
-        style: simple
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/calender'
-        required: true
-      responses:
-        "201":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/calender'
-          description: Updated date
-        "400":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400_8'
-          description: date not found, ID not found
-        "405":
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/inline_response_400_8'
-          description: Invalid input
-      summary: Add a new calender to the DB
       tags:
       - calender
       x-openapi-router-controller: CalenderController
@@ -1324,7 +1466,7 @@ components:
         userId: 5e54eaeeefa28026d8e6eb4f
         userName: David Anton
         title: Load bateries
-        piority: 1, 2 or 3
+        priority: 1, 2 or 3
         percentageDone: 0%
         categorie: Wedding
         parentTask: none
@@ -1357,7 +1499,7 @@ components:
         taskBody:
           description: Body of task
           type: string
-        piority:
+        priority:
           default: 3
           description: Priority 1-height, 2-medium, 3-low
           enum:
@@ -1449,7 +1591,7 @@ components:
         title: Meeting with Groom
         body: Any description here
         location: Oberkirch
-        piority: 3
+        priority: 3
         category: Weddings
         tags: Some Tags separated with coma
         status: 0
@@ -1487,7 +1629,7 @@ components:
         location:
           description: If there is a location in relation with the task
           type: string
-        piority:
+        priority:
           default: 3
           description: Priority 1-height, 2-medium, 3-low
           enum:
